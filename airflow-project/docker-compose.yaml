@@ -22,17 +22,20 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__WEBSERVER__RBAC: 'true'
       AIRFLOW__WEBSERVER__SECRET_KEY: 'mysecretkey'
+      AIRFLOW__CORE_SIMPLE_AUTH_MANAGER_USERS : "bob:admin,peter:viewer"
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
     ports:
       - "8080:8080"
-    command: >
-      bash -c "
-      airflow db init &&
-      airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com &&
-      airflow webserver & airflow scheduler
+    entrypoint: /bin/bash -c "
+      if [ -s /requirements.txt ]; then pip install --no-cache-dir -r /requirements.txt; fi && \
+      airflow db migrate && \
+      airflow standalone
       "
+    command: >
+      bash -c "airflow scheduler & airflow webserver"
+    user: airflow
     networks:
       - airflow
 
