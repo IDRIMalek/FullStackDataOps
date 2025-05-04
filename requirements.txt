@@ -1,0 +1,2 @@
+# Ajoutez ici vos dépendances Python supplémentaires si nécessaire
+kafka-python
